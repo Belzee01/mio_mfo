@@ -1,3 +1,10 @@
+import Jama.Matrix;
+import optimizer.Bounds;
+import optimizer.MothFlameOptimization;
+import optimizer.TestFunction;
+
+import java.util.Arrays;
+
 public class Main {
 
     public static class Levy20 implements TestFunction {
@@ -18,10 +25,15 @@ public class Main {
 
     public static void main(String[] args) {
 
+        int dimensions = 2;
         int numberOfMoths = 30;
-        int maxNumberOfIterations = 1000;
 
-        TestFunction testFunction = new Levy20();
+        MothFlameOptimization mothFlameOptimization = new MothFlameOptimization(
+                new Levy20(),
+                new Bounds(-10.0, 10.0),
+                1000, numberOfMoths, dimensions);
+
+        mothFlameOptimization.mfo();
 
         System.out.println("hello");
     }
