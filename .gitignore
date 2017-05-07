@@ -44,3 +44,8 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+/.idea/
+mfo.iml
+src/main/resources/
+src/test/
+target/
