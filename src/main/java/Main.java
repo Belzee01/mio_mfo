@@ -31,9 +31,9 @@ public class Main {
         MothFlameOptimization mothFlameOptimization = new MothFlameOptimization(
                 new Levy20(),
                 new Bounds(-10.0, 10.0),
-                1000, numberOfMoths, dimensions);
+                2500, numberOfMoths, dimensions);
 
-        mothFlameOptimization.mfo();
+        System.out.println(Arrays.deepToString(mothFlameOptimization.mfo()));
 
         System.out.println("hello");
     }

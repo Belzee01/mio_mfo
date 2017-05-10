@@ -3,8 +3,8 @@ package optimizer;
 import Jama.Matrix;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -20,12 +20,14 @@ public class MothFlameOptimization {
     private int currentIteration;
 
     private Matrix mothsPositions;
-    private Matrix mothsFitness;
-
-    private Matrix flamesPositions;
-    private Matrix flamesFitness;
+    private double[] mothsFitness;
 
     private Matrix sortedMothsPositions;
+    private Matrix sortedFlamesPositions;
+    private double[] bestFlameFitness;
+
+    private double flameBestScore;
+    private double[] flameBestPosition;
 
     public MothFlameOptimization(TestFunction testFunction, Bounds bounds, int maxNumberOfIterations, int numberOfMoths, int dimensions) {
         this.testFunction = testFunction;
@@ -38,10 +40,12 @@ public class MothFlameOptimization {
 
         this.mothsPositions = new Matrix(numberOfMoths, dimensions);
         this.sortedMothsPositions = new Matrix(numberOfMoths, dimensions);
-        this.mothsFitness = new Matrix(numberOfMoths, 1);
+        this.mothsFitness = new double[numberOfMoths];
 
-        this.flamesPositions = new Matrix(numberOfMoths, dimensions);
-        this.flamesFitness = new Matrix(numberOfMoths, 1);
+        this.bestFlameFitness = new double[numberOfMoths];
+        this.sortedFlamesPositions = new Matrix(numberOfMoths, dimensions);
+
+        this.flameBestPosition = new double[numberOfMoths];
 
         this.initialization();
     }
@@ -60,9 +64,9 @@ public class MothFlameOptimization {
         }
     }
 
-    private void evaluateFitness(Matrix matrix, Matrix toEvaluation) {
+    private void evaluateFitness(double[] matrix, Matrix toEvaluation) {
         for (int i = 0; i < numberOfMoths; i++) {
-            matrix.set(i, 0, testFunction.functionToProcess(toEvaluation.getArray()[i]));
+            matrix[i] = testFunction.functionToProcess(toEvaluation.getArray()[i]);
         }
     }
 
@@ -82,12 +86,11 @@ public class MothFlameOptimization {
     }
 
     /**
-     *
      * @param matrix
      * @return Returns sorted fitness in first column and indexes from old fitness matrix in second column
      */
-    private Matrix sortFitness(Matrix matrix) {
-        ArrayList<Double> fitnessCopy = DoubleStream.of(matrix.getArray()[0]).boxed().collect(Collectors.toCollection(ArrayList::new));
+    private double[][] sortFitness(double[] matrix) {
+        ArrayList<Double> fitnessCopy = DoubleStream.of(matrix).boxed().collect(Collectors.toCollection(ArrayList::new));
         ArrayList<Double> oldFitness = new ArrayList<>(fitnessCopy);
         Collections.sort(fitnessCopy);
 
@@ -96,16 +99,18 @@ public class MothFlameOptimization {
             indexes.add(oldFitness.indexOf(aFitnessCopy));
         }
 
-        Matrix out = new Matrix(fitnessCopy.size(), 2);
+        double[][] out = new double[2][fitnessCopy.size()];
         for (int i = 0; i < fitnessCopy.size(); i++) {
-            out.set(i, 0, fitnessCopy.get(i));
-            out.set(i, 1, indexes.get(i));
+            out[0][i] = fitnessCopy.get(i);
+            out[1][i] = indexes.get(i);
         }
         return out;
     }
 
-    public void mfo() {
-        Matrix previousMothsFitness = new Matrix(numberOfMoths, 1);
+    public double[][] mfo() {
+        double a = 0.0;
+
+        double[] previousMothsFitness = new double[numberOfMoths];
         Matrix previousMothsPositions = new Matrix(numberOfMoths, dimensions);
 
         evaluateNewPositions(previousMothsPositions);
@@ -121,28 +126,129 @@ public class MothFlameOptimization {
             this.evaluateFitness(this.mothsFitness, this.mothsPositions);
 
             if (this.currentIteration == 1) {
-                Matrix sortedFitnessAndIndexes = this.sortFitness(this.mothsFitness);
+
+                double[][] sortedFitnessAndIndexes = this.sortFitness(this.mothsFitness);
                 for (int i = 0; i < numberOfMoths; i++) {
-                    fitnessSorted[i] = sortedFitnessAndIndexes.get(0, i);
-                    indexes[i] = sortedFitnessAndIndexes.get(1, i);
+                    fitnessSorted[i] = sortedFitnessAndIndexes[0][i];
+                    indexes[i] = sortedFitnessAndIndexes[1][i];
                 }
                 for (int i = 0; i < numberOfMoths; i++) {
                     double[] temp = new double[dimensions];
                     System.arraycopy(mothsPositions.getArray()[(int) indexes[i]], 0, temp, 0, dimensions);
-                    for (int j = 0; i < dimensions; j++) {
+                    for (int j = 0; j < dimensions; j++) {
                         this.sortedMothsPositions.set(i, j, temp[j]);
                     }
                 }
                 for (int i = 0; i < numberOfMoths; i++) {
-                    System.arraycopy(sorted_population[i], 0, best_flames[i], 0, D);
-                    best_flame_fitness[i] = fitness_sorted[i];
+                    double[] temp = new double[dimensions];
+                    System.arraycopy(this.sortedMothsPositions.getArray()[i], 0, temp, 0, dimensions);
+                    for (int j = 0; j < dimensions; j++) {
+                        this.sortedFlamesPositions.set(i, j, temp[j]);
+                    }
+                    this.bestFlameFitness[i] = fitnessSorted[i];
                 }
             } else {
 
+                Matrix twiceSizePopulation = new Matrix(2 * numberOfMoths, dimensions);
+                double[] twiceSizeFitness = new double[2 * numberOfMoths];
+                for (int i = 0; i < numberOfMoths; i++) {
+                    double[] temp = new double[dimensions];
+                    System.arraycopy(previousMothsPositions.getArray()[i], 0, temp, 0, dimensions);
+                    for (int j = 0; j < dimensions; j++) {
+                        twiceSizePopulation.set(i, j, temp[j]);
+                    }
+                }
+
+                for (int i = numberOfMoths; i < 2 * numberOfMoths; i++) {
+                    double[] temp = new double[dimensions];
+                    System.arraycopy(sortedFlamesPositions.getArray()[i - numberOfMoths], 0, temp, 0, dimensions);
+                    for (int j = 0; j < dimensions; j++) {
+                        twiceSizePopulation.set(i, j, temp[j]);
+                    }
+                }
+
+                System.arraycopy(previousMothsFitness, 0, twiceSizeFitness, 0, numberOfMoths);
+                System.arraycopy(bestFlameFitness, 0, twiceSizeFitness, numberOfMoths, 2 * numberOfMoths - numberOfMoths);
+
+                double[][] sortedFitnessAndIndexes = this.sortFitness(twiceSizeFitness);
+                double[] twiceSizeFitnessSorted = new double[2 * numberOfMoths];
+                double[] twiceSizeIndexes = new double[2 * numberOfMoths];
+                for (int i = 0; i < 2 * numberOfMoths; i++) {
+                    twiceSizeFitnessSorted[i] = sortedFitnessAndIndexes[0][i];
+                    twiceSizeIndexes[i] = sortedFitnessAndIndexes[1][i];
+                }
+
+                Matrix twiceSizeSortedPopulation = new Matrix(2 * numberOfMoths, dimensions);
+                for (int i = 0; i < 2 * numberOfMoths; i++) {
+                    double[] temp = new double[dimensions];
+                    System.arraycopy(twiceSizePopulation.getArray()[(int) twiceSizeIndexes[i]], 0, temp, 0, dimensions);
+                    for (int j = 0; j < dimensions; j++) {
+                        twiceSizeSortedPopulation.set(i, j, temp[j]);
+                    }
+                }
+
+                System.arraycopy(twiceSizeFitnessSorted, 0, fitnessSorted, 0, numberOfMoths);
+                for (int i = 0; i < numberOfMoths; i++) {
+                    double[] temp = new double[dimensions];
+                    System.arraycopy(twiceSizeSortedPopulation.getArray()[i], 0, temp, 0, dimensions);
+                    for (int j = 0; j < dimensions; j++) {
+                        this.sortedMothsPositions.set(i, j, temp[j]);
+                    }
+                }
+
+                for (int i = 0; i < numberOfMoths; i++) {
+                    double[] temp = new double[dimensions];
+                    System.arraycopy(sortedMothsPositions.getArray()[i], 0, temp, 0, dimensions);
+                    for (int j = 0; j < dimensions; j++) {
+                        this.sortedFlamesPositions.set(i, j, temp[j]);
+                    }
+                    bestFlameFitness[i] = fitnessSorted[i];
+                }
             }
 
+            this.flameBestScore = fitnessSorted[0];
+
+            for (int i = 0; i < dimensions; i++) {
+                this.flameBestPosition[i] = sortedMothsPositions.get(0, i);
+            }
+
+            for (int i = 0; i < numberOfMoths; i++) {
+                double[] temp = new double[numberOfMoths];
+                System.arraycopy(mothsPositions.getArrayCopy()[i], 0, temp, 0, dimensions);
+                for (int j = 0; j < dimensions; j++) {
+                    previousMothsPositions.set(i, j, temp[j]);
+                }
+                previousMothsFitness[i] = mothsFitness[i];
+            }
+
+            a = -1.0 + (double) currentIteration * (-1.0 / (double) maxNumberOfIterations);
+
+            double b = 1.0;
+            double t = 0.0;
+            double mothDistanceToFlame = 0.0;
+            for (int i = 0; i < numberOfMoths; i++) {
+                for (int j = 0; j < dimensions; j++) {
+                    if (i <= this.numberOfFlames) {
+                        mothDistanceToFlame = Math.abs(sortedMothsPositions.get(i, j) - mothsPositions.get(i, j));
+                        t = (a - 1.0) * Math.random() + 1.0;
+                        mothsPositions.set(i, j, mothDistanceToFlame * Math.exp(b * t) * Math.cos(t * 2.0 * Math.PI) + sortedMothsPositions.get(i, j));
+                    }
+
+                    if (i > this.numberOfFlames) {
+                        mothDistanceToFlame = Math.abs(sortedMothsPositions.get(i, j) - mothsPositions.get(i, j));
+                        t = (a - 1.0) * Math.random() + 1.0;
+                        mothsPositions.set(i, j, mothDistanceToFlame * Math.exp(b * t) * Math.cos(t * 2.0 * Math.PI) + sortedMothsPositions.get(this.numberOfFlames, j));
+                    }
+                }
+            }
             this.currentIteration++;
         }
+
+        double[][] out = new double[2][dimensions];
+        out[0][0] = flameBestScore;
+        System.arraycopy(flameBestPosition, 0, out[1], 0, dimensions);
+
+        return out;
     }
 }
 
