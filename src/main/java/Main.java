@@ -1,12 +1,18 @@
-import Jama.Matrix;
 import optimizer.Bounds;
-import optimizer.MothFlameOptimization;
 import optimizer.MothFlameOptimizationAlt;
 import optimizer.TestFunction;
 
-import java.util.Arrays;
-
 public class Main {
+
+    /**
+     * Shifted Bent Cigar D 10
+     * Rotated Bent Cigar D 10
+     * Rosenbrock D 10
+     * Rastrigin D 10
+     * Zakharov D 10
+     *
+     * Obszar przeszukiwania [-100, 100] ^ D
+     */
 
     public static class Levy20 implements TestFunction {
 
