@@ -1,6 +1,7 @@
 import Jama.Matrix;
 import optimizer.Bounds;
 import optimizer.MothFlameOptimization;
+import optimizer.MothFlameOptimizationAlt;
 import optimizer.TestFunction;
 
 import java.util.Arrays;
@@ -25,15 +26,18 @@ public class Main {
 
     public static void main(String[] args) {
 
+
+
         int dimensions = 2;
         int numberOfMoths = 30;
 
-        MothFlameOptimization mothFlameOptimization = new MothFlameOptimization(
-                new Levy20(),
-                new Bounds(-10.0, 10.0),
-                2500, numberOfMoths, dimensions);
+        int maxIterations = 100000;
 
-        System.out.println(Arrays.deepToString(mothFlameOptimization.mfo()));
+        MothFlameOptimizationAlt mothFlameOptimizationAlt = new MothFlameOptimizationAlt(
+                numberOfMoths, dimensions, new Levy20(), maxIterations, new Bounds(-10.0, 10.0)
+        );
+
+        System.out.println("Minimum: " + mothFlameOptimizationAlt.mfo());
 
         System.out.println("hello");
     }
