@@ -28,6 +28,9 @@ public class MothFlameOptimizationAlt {
 
     private Double bestFlameFitness;
 
+    @Getter
+    private List<Double> solutionsByIterations;
+
     public MothFlameOptimizationAlt(int numberOfMoths, int dimensions, TestFunction testFunction, int maxNumberOfIterations, Bounds bounds) {
         this.moths = new ArrayList<>(numberOfMoths);
         this.numberOfMoths = numberOfMoths;
@@ -41,6 +44,8 @@ public class MothFlameOptimizationAlt {
         this.currentIteration = 0;
         this.maxNumberOfIterations = maxNumberOfIterations;
         this.bounds = bounds;
+
+        this.solutionsByIterations = new ArrayList<>();
 
         initialization();
     }
@@ -113,6 +118,7 @@ public class MothFlameOptimizationAlt {
         evaluateFitness(previousMothPopulation);
 
         while (this.currentIteration < this.maxNumberOfIterations) {
+            System.out.println("Iteration : " + this.currentIteration);
             evaluateNumberOfFlames();
             checkAndUpdateBoundaryConditions();
 
@@ -163,8 +169,8 @@ public class MothFlameOptimizationAlt {
                     }
                 }
             }
-
             this.currentIteration++;
+            this.solutionsByIterations.add(this.sortedPopulation.get(0).getFitnessValue());
         }
 
         return this.sortedPopulation.get(0);
