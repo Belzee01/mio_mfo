@@ -7,11 +7,16 @@ import optimizer.TestFunctionBenchmark.BentCigar;
 import optimizer.TestFunctionBenchmark.Rastrigin;
 import optimizer.TestFunctionBenchmark.Rosenbrock;
 import optimizer.TestFunctionBenchmark.Zakharov;
+import optimizer.model.MothContainer;
 import optimizer.model.MyPointsContainer;
 
 public class Main {
 
-    private static int[] numberOfAgents = {10, 100, 1000};
+    private static int[] numberOfAgents = {60, 120, 180};
+
+    private static int numberOfExecutions = 30;
+
+    private static Bounds bounds = new Bounds(-100.0, 100.0);
 
     public static void initialTests() {
 
@@ -46,20 +51,68 @@ public class Main {
         }
     }
 
-    public static void shiftedAndRotatedBentCigar(double[] shift, double[] rotation, int maxIterations, int numberOfAgents, int dimensions) {
-
+    public static MothContainer shiftedAndRotatedBentCigar(double[] shift, double[] rotation, int maxIterations, int numberOfAgents, int dimensions) {
+        MothContainer mothContainer = new MothContainer();
+        MothFlameOptimizationAlt mothFlameOptimizationAlt;
+        for (int i = 0; i < numberOfExecutions; i++) {
+            mothFlameOptimizationAlt = new MothFlameOptimizationAlt(
+                    numberOfAgents,
+                    dimensions,
+                    new BentCigar(true, true, 1.0, shift, rotation),
+                    maxIterations,
+                    bounds
+            );
+            mothContainer.addMoth(mothFlameOptimizationAlt.mfo());
+        }
+        return mothContainer;
     }
 
-    public static void shiftedAndRotatedZakharov(double[] shift, double[] rotation, int maxIterations, int numberOfAgents, int dimensions) {
-
+    public static MothContainer shiftedAndRotatedZakharov(double[] shift, double[] rotation, int maxIterations, int numberOfAgents, int dimensions) {
+        MothContainer mothContainer = new MothContainer();
+        MothFlameOptimizationAlt mothFlameOptimizationAlt;
+        for (int i = 0; i < numberOfExecutions; i++) {
+            mothFlameOptimizationAlt = new MothFlameOptimizationAlt(
+                    numberOfAgents,
+                    dimensions,
+                    new Zakharov(true, true, 1.0, shift, rotation),
+                    maxIterations,
+                    bounds
+            );
+            mothContainer.addMoth(mothFlameOptimizationAlt.mfo());
+        }
+        return mothContainer;
     }
 
-    public static void shiftedAndRotatedRastrigin(double[] shift, double[] rotation, int maxIterations, int numberOfAgents, int dimensions) {
-
+    public static MothContainer shiftedAndRotatedRastrigin(double[] shift, double[] rotation, int maxIterations, int numberOfAgents, int dimensions) {
+        MothContainer mothContainer = new MothContainer();
+        MothFlameOptimizationAlt mothFlameOptimizationAlt;
+        for (int i = 0; i < numberOfExecutions; i++) {
+            mothFlameOptimizationAlt = new MothFlameOptimizationAlt(
+                    numberOfAgents,
+                    dimensions,
+                    new Rastrigin(true, true, 1.0, shift, rotation),
+                    maxIterations,
+                    bounds
+            );
+            mothContainer.addMoth(mothFlameOptimizationAlt.mfo());
+        }
+        return mothContainer;
     }
 
-    public static void shiftedAndRotatedRosenbrock(double[] shift, double[] rotation, int maxIterations, int numberOfAgents, int dimensions) {
-
+    public static MothContainer shiftedAndRotatedRosenbrock(double[] shift, double[] rotation, int maxIterations, int numberOfAgents, int dimensions) {
+        MothContainer mothContainer = new MothContainer();
+        MothFlameOptimizationAlt mothFlameOptimizationAlt;
+        for (int i = 0; i < numberOfExecutions; i++) {
+            mothFlameOptimizationAlt = new MothFlameOptimizationAlt(
+                    numberOfAgents,
+                    dimensions,
+                    new Rosenbrock(true, true, 1.0, shift, rotation),
+                    maxIterations,
+                    bounds
+            );
+            mothContainer.addMoth(mothFlameOptimizationAlt.mfo());
+        }
+        return mothContainer;
     }
 
     public static void main(String[] args) {
@@ -67,49 +120,71 @@ public class Main {
         int dimensions = 10;
         int maxIterations = 100000;
 
-        initialTests();
+        //initialTests();
 
-        double[] shiftedBentCigar = CustomFileReader.readFile(dimensions, "input_data/shifted_data_1.txt");
-        double[] shiftedZakharov = CustomFileReader.readFile(dimensions, "input_data/shifted_data_3.txt");
-        double[] shiftedRosenbrock = CustomFileReader.readFile(dimensions, "input_data/shifted_data_4.txt");
-        double[] shiftedRastrigin = CustomFileReader.readFile(dimensions, "input_data/shifted_data_5.txt");
+        double[] shiftedBentCigar = new CustomFileReader().readFile(dimensions, "./input_data/shift_data_1.txt");
+        double[] shiftedZakharov = new CustomFileReader().readFile(dimensions, "./input_data/shift_data_3.txt");
+        double[] shiftedRosenbrock = new CustomFileReader().readFile(dimensions, "./input_data/shift_data_4.txt");
+        double[] shiftedRastrigin = new CustomFileReader().readFile(dimensions, "./input_data/shift_data_5.txt");
 
-        double[] rotatedBentCigar = CustomFileReader.readFile(dimensions * dimensions, "input_data/M_1_D10.txt");
-        double[] rotatedZakharov = CustomFileReader.readFile(dimensions * dimensions, "input_data/M_3_D10.txt");
-        double[] rotatedRosenbrock = CustomFileReader.readFile(dimensions * dimensions, "input_data/M_4_D10.txt");
-        double[] rotatedRastrigin = CustomFileReader.readFile(dimensions * dimensions, "input_data/M_5_D10.txt");
+        double[] rotatedBentCigar = new CustomFileReader().readFile(dimensions * dimensions, "input_data/M_1_D10.txt");
+        double[] rotatedZakharov = new CustomFileReader().readFile(dimensions * dimensions, "input_data/M_3_D10.txt");
+        double[] rotatedRosenbrock = new CustomFileReader().readFile(dimensions * dimensions, "input_data/M_4_D10.txt");
+        double[] rotatedRastrigin = new CustomFileReader().readFile(dimensions * dimensions, "input_data/M_5_D10.txt");
 
 
         //Shifted and Rotated Bent Cigar
         System.out.println("Calculating SaR Bent Cigar");
         for (int i = 0; i < numberOfAgents.length; i++) {
-            shiftedAndRotatedBentCigar(shiftedBentCigar, rotatedBentCigar, maxIterations, numberOfAgents[i], dimensions);
+            System.out.println("Number of moths :" + numberOfAgents[i]);
+            CustomFileWriter.writeToFile(
+                    shiftedAndRotatedBentCigar(shiftedBentCigar, rotatedBentCigar, maxIterations, numberOfAgents[i], dimensions),
+                    "sarBentCigar_agents" + numberOfAgents[i] + ".dat"
+            );
+            System.out.println("\n");
         }
-        System.out.println("Finished calculating SaR Bent Cigar");
+        System.out.println("Finished calculating SaR Bent Cigar\n");
 
 
         //Shifted and Rotated Zakharov
         System.out.println("Calculating SaR Zakharov");
         for (int i = 0; i < numberOfAgents.length; i++) {
-            shiftedAndRotatedZakharov(shiftedZakharov, rotatedZakharov, maxIterations, numberOfAgents[i], dimensions);
+            System.out.println("Number of moths :" + numberOfAgents[i]);
+            CustomFileWriter.writeToFile(
+                    shiftedAndRotatedZakharov(shiftedZakharov, rotatedZakharov, maxIterations, numberOfAgents[i], dimensions),
+                    "sarZakharov_agents" + numberOfAgents[i] + ".dat"
+            );
+            System.out.println("\n");
         }
-        System.out.println("Calculating SaR Zakharov");
+        System.out.println("Finished calculating SaR Zakharov\n");
 
 
         //Shifted and Rotated Rosenbrock
         System.out.println("Calculating SaR Rosenbrock");
         for (int i = 0; i < numberOfAgents.length; i++) {
-            shiftedAndRotatedRosenbrock(shiftedRosenbrock, rotatedRosenbrock, maxIterations, numberOfAgents[i], dimensions);
+            System.out.println("Number of moths :" + numberOfAgents[i]);
+            CustomFileWriter.writeToFile(
+                    shiftedAndRotatedRosenbrock(shiftedRosenbrock, rotatedRosenbrock, maxIterations, numberOfAgents[i], dimensions),
+                    "sarRosenbrock_agents" + numberOfAgents[i] + ".dat"
+            );
+
+            System.out.println("\n");
         }
-        System.out.println("Calculating SaR Rosenbrock");
+        System.out.println("Finished calculating SaR Rosenbrock\n");
 
 
         //Shifted and Rotated Rastrigin
         System.out.println("Calculating SaR Rastrigin");
         for (int i = 0; i < numberOfAgents.length; i++) {
-            shiftedAndRotatedRastrigin(shiftedRastrigin, rotatedRastrigin, maxIterations, numberOfAgents[i], dimensions);
+            System.out.println("Number of moths :" + numberOfAgents[i]);
+            CustomFileWriter.writeToFile(
+                    shiftedAndRotatedRastrigin(shiftedRastrigin, rotatedRastrigin, maxIterations, numberOfAgents[i], dimensions),
+                    "sarRastrigin_agents" + numberOfAgents[i] + ".dat"
+            );
+
+            System.out.println("\n");
         }
-        System.out.println("Calculating SaR Rastrigin");
+        System.out.println("Finished calculating SaR Rastrigin");
 
         System.out.println("hello");
     }
