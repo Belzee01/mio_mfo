@@ -49,3 +49,4 @@ mfo.iml
 src/main/resources/
 src/test/
 target/
+/input_data/
