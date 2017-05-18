@@ -1,8 +1,10 @@
 package optimizer.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class MyPoint {
     private Double x;
     private Double y;
@@ -10,7 +12,7 @@ public class MyPoint {
 
     @Override
     public String toString() {
-        return x + "\t" + y + "\t" + z;
+        return x + "\t" + y + "\t" + z + "\n";
     }
 }
 

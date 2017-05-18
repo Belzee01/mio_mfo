@@ -14,22 +14,6 @@ public class TestFunctionBenchmark {
      * Obszar przeszukiwania [-100, 100] ^ D
      */
 
-    public static class Levy20 implements TestFunction {
-
-        public double functionToProcess(double[] args) {
-            int n = args.length;
-            double z[] = new double[n];
-            for (int i = 0; i < n; i++) {
-                z[i] = 1.0 + ((args[i] - 1.0) / 4.0);
-            }
-            double s = Math.pow(Math.sin(3.1415 * z[0]), 2.0);
-            for (int i = 0; i < n - 1; i++) {
-                s += Math.pow((z[i] - 1.0), 2.0) * (1.0 + 10.0 * Math.pow(Math.sin(3.1415 * z[i] + 1.0), 2.0));
-            }
-            return s + Math.pow(z[n - 1] - 1.0, 2.0) * (Math.pow(Math.sin(2.0 * 3.1415 * z[n - 1]), 2.0) + 1.0);
-        }
-    }
-
     public static class Zakharov implements TestFunction {
         private boolean isShifted;
         private boolean isRotated;
@@ -154,16 +138,14 @@ public class TestFunctionBenchmark {
             int nx = args.length;
 
             double[] z = new double[nx];
-            double result = 0.0;
 
             sr_func(args, z, nx, shiftedArray, rotatedArray, shiftedRate, isShifted, isRotated); /* shift and rotate */
 
             double ff = 0;
-            int n = z.length;
-            for (double aX : z) {
-                ff += aX * aX - 10 * Math.cos(2.0 * Math.PI * aX);
+            for (int i = 0; i < nx; i++) {
+                ff += (z[i] * z[i] - 10.0 * Math.cos(2.0 * Math.PI * z[i]) + 10.0);
             }
-            return ff + 10 * n;
+            return ff;
         }
     }
 
