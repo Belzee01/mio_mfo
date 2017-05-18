@@ -31,43 +31,185 @@ public class TestFunctionBenchmark {
     }
 
     public static class Zakharov implements TestFunction {
-        public double functionToProcess(double x[]) {
-            int n = x.length;
+        private boolean isShifted;
+        private boolean isRotated;
+
+        private double shiftedRate;
+
+        private double[] shiftedArray;
+        private double[] rotatedArray;
+
+        public Zakharov(boolean isShifted, boolean isRotated, double shiftedRate, double[] shiftedArray, double[] rotatedArray) {
+            this.isShifted = isShifted;
+            this.isRotated = isRotated;
+            this.shiftedRate = shiftedRate;
+            this.shiftedArray = shiftedArray;
+            this.rotatedArray = rotatedArray;
+        }
+
+        public Zakharov() {
+            this.isRotated = false;
+            this.isShifted = false;
+
+            this.rotatedArray = null;
+            this.shiftedArray = null;
+
+            this.shiftedRate = 1.0;
+        }
+
+        public double functionToProcess(double[] args) {
+            int nx = args.length;
+
+            double[] z = new double[nx];
+            double result = 0.0;
+
+            sr_func(args, z, nx, shiftedArray, rotatedArray, shiftedRate, isShifted, isRotated); /* shift and rotate */
+
+            int n = z.length;
             double s1 = 0.0;
             double s2 = 0.0;
             double s3 = 0.0;
-            for (double aX : x) {
+            for (double aX : z) {
                 s1 += aX * aX;
             }
             for (int i = 0; i < n; i++) {
-                s2 += 0.5 * (double) i * x[i];
+                s2 += 0.5 * (double) i * z[i];
             }
             return s1 + Math.pow(s2, 2.0) + Math.pow(s2, 4.0);
         }
     }
 
     public static class Rosenbrock implements TestFunction {
-        public double functionToProcess(double x[]) {
-            int n = x.length;
+        private boolean isShifted;
+        private boolean isRotated;
+
+        private double shiftedRate;
+
+        private double[] shiftedArray;
+        private double[] rotatedArray;
+
+        public Rosenbrock(boolean isShifted, boolean isRotated, double shiftedRate, double[] shiftedArray, double[] rotatedArray) {
+            this.isShifted = isShifted;
+            this.isRotated = isRotated;
+            this.shiftedRate = shiftedRate;
+            this.shiftedArray = shiftedArray;
+            this.rotatedArray = rotatedArray;
+        }
+
+        public Rosenbrock() {
+            this.isRotated = false;
+            this.isShifted = false;
+
+            this.rotatedArray = null;
+            this.shiftedArray = null;
+
+            this.shiftedRate = 1.0;
+        }
+
+        public double functionToProcess(double[] args) {
+            int nx = args.length;
+
+            double[] z = new double[nx];
+            double result = 0.0;
+
+            sr_func(args, z, nx, shiftedArray, rotatedArray, shiftedRate, isShifted, isRotated); /* shift and rotate */
+
+            int n = z.length;
             double ff = 0.0;
             for (int i = 0; i < n - 1; i++) {
-                ff += (100.0 * (x[i + 1] - x[i] * x[i]) * (x[i + 1] - x[i] * x[i]) + (1.0 - x[i]) * (1.0 - x[i]));
+                ff += (100.0 * (z[i + 1] - z[i] * z[i]) * (z[i + 1] - z[i] * z[i]) + (1.0 - z[i]) * (1.0 - z[i]));
             }
             return ff;
         }
     }
 
     public static class Rastrigin implements TestFunction {
-        public double functionToProcess(double x[]) {
+        private boolean isShifted;
+        private boolean isRotated;
+
+        private double shiftedRate;
+
+        private double[] shiftedArray;
+        private double[] rotatedArray;
+
+        public Rastrigin(boolean isShifted, boolean isRotated, double shiftedRate, double[] shiftedArray, double[] rotatedArray) {
+            this.isShifted = isShifted;
+            this.isRotated = isRotated;
+            this.shiftedRate = shiftedRate;
+            this.shiftedArray = shiftedArray;
+            this.rotatedArray = rotatedArray;
+        }
+
+        public Rastrigin() {
+            this.isRotated = false;
+            this.isShifted = false;
+
+            this.rotatedArray = null;
+            this.shiftedArray = null;
+
+            this.shiftedRate = 1.0;
+        }
+
+        public double functionToProcess(double[] args) {
+            int nx = args.length;
+
+            double[] z = new double[nx];
+            double result = 0.0;
+
+            sr_func(args, z, nx, shiftedArray, rotatedArray, shiftedRate, isShifted, isRotated); /* shift and rotate */
+
             double ff = 0;
-            int n = x.length;
-            for (double aX : x) {
+            int n = z.length;
+            for (double aX : z) {
                 ff += aX * aX - 10 * Math.cos(2.0 * Math.PI * aX);
             }
             return ff + 10 * n;
         }
     }
 
+    public static class BentCigar implements TestFunction {
+        private boolean isShifted;
+        private boolean isRotated;
+
+        private double shiftedRate;
+
+        private double[] shiftedArray;
+        private double[] rotatedArray;
+
+        public BentCigar(boolean isShifted, boolean isRotated, double shiftedRate, double[] shiftedArray, double[] rotatedArray) {
+            this.isShifted = isShifted;
+            this.isRotated = isRotated;
+            this.shiftedRate = shiftedRate;
+            this.shiftedArray = shiftedArray;
+            this.rotatedArray = rotatedArray;
+        }
+
+        public BentCigar() {
+            this.isRotated = false;
+            this.isShifted = false;
+
+            this.rotatedArray = null;
+            this.shiftedArray = null;
+
+            this.shiftedRate = 1.0;
+        }
+
+        public double functionToProcess(double[] args) {
+            int i;
+            int nx = args.length;
+
+            double[] z = new double[nx];
+            double result = 0.0;
+
+            sr_func(args, z, nx, shiftedArray, rotatedArray, shiftedRate, isShifted, isRotated); /* shift and rotate */
+
+            result = z[0] * z[0];
+            for (i = 1; i < nx; i++) {
+                result += Math.pow(10.0, 6.0) * z[i] * z[i];
+            }
+            return result;
+        }
+    }
 
     private static void sr_func(double[] x, double[] sr_x, int nx, double[] Os, double[] Mr, double sh_rate, boolean isShifted, boolean isRotated) /* shift and rotate */ {
         int i;
@@ -117,35 +259,6 @@ public class TestFunctionBenchmark {
             for (j = 0; j < nx; j++) {
                 xrot[i] = xrot[i] + x[j] * Mr[i * nx + j];
             }
-        }
-    }
-
-    @AllArgsConstructor
-    public static class BentCigar implements TestFunction {
-
-        private boolean isShifted;
-        private boolean isRotated;
-
-        private double shiftedRate;
-
-        private double[] shiftedArray;
-        private double[] rotatedArray;
-
-        @Override
-        public double functionToProcess(double[] args) {
-            int i;
-            int nx = args.length;
-
-            double[] z = new double[nx];
-            double result = 0.0;
-
-            sr_func(args, z, nx, shiftedArray, rotatedArray, shiftedRate, isShifted, isRotated); /* shift and rotate */
-
-            result = z[0] * z[0];
-            for (i = 1; i < nx; i++) {
-                result += Math.pow(10.0, 6.0) * z[i] * z[i];
-            }
-            return result;
         }
     }
 }
