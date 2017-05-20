@@ -7,6 +7,7 @@ import optimizer.TestFunctionBenchmark.BentCigar;
 import optimizer.TestFunctionBenchmark.Rastrigin;
 import optimizer.TestFunctionBenchmark.Rosenbrock;
 import optimizer.TestFunctionBenchmark.Zakharov;
+import optimizer.model.Moth;
 import optimizer.model.MothContainer;
 import optimizer.model.MyPointsContainer;
 
@@ -53,7 +54,7 @@ public class Main {
 
     public static MothContainer shiftedAndRotatedBentCigar(double[] shift, double[] rotation, int maxIterations, int numberOfAgents, int dimensions) {
         MothContainer mothContainer = new MothContainer();
-        MothFlameOptimizationAlt mothFlameOptimizationAlt;
+        MothFlameOptimizationAlt mothFlameOptimizationAlt = null;
         for (int i = 0; i < numberOfExecutions; i++) {
             mothFlameOptimizationAlt = new MothFlameOptimizationAlt(
                     numberOfAgents,
@@ -64,12 +65,16 @@ public class Main {
             );
             mothContainer.addMoth(mothFlameOptimizationAlt.mfo());
         }
+        CustomFileWriter.writeToFile(
+                mothFlameOptimizationAlt.getFitnessByIteration(),
+                "sarBentCiagar_fitness_iteration_"+ numberOfAgents +".dat"
+        );
         return mothContainer;
     }
 
     public static MothContainer shiftedAndRotatedZakharov(double[] shift, double[] rotation, int maxIterations, int numberOfAgents, int dimensions) {
         MothContainer mothContainer = new MothContainer();
-        MothFlameOptimizationAlt mothFlameOptimizationAlt;
+        MothFlameOptimizationAlt mothFlameOptimizationAlt = null;
         for (int i = 0; i < numberOfExecutions; i++) {
             mothFlameOptimizationAlt = new MothFlameOptimizationAlt(
                     numberOfAgents,
@@ -80,12 +85,16 @@ public class Main {
             );
             mothContainer.addMoth(mothFlameOptimizationAlt.mfo());
         }
+        CustomFileWriter.writeToFile(
+                mothFlameOptimizationAlt.getFitnessByIteration(),
+                "sarZakharov_fitness_iteration_"+ numberOfAgents +".dat"
+        );
         return mothContainer;
     }
 
     public static MothContainer shiftedAndRotatedRastrigin(double[] shift, double[] rotation, int maxIterations, int numberOfAgents, int dimensions) {
         MothContainer mothContainer = new MothContainer();
-        MothFlameOptimizationAlt mothFlameOptimizationAlt;
+        MothFlameOptimizationAlt mothFlameOptimizationAlt = null;
         for (int i = 0; i < numberOfExecutions; i++) {
             mothFlameOptimizationAlt = new MothFlameOptimizationAlt(
                     numberOfAgents,
@@ -96,12 +105,16 @@ public class Main {
             );
             mothContainer.addMoth(mothFlameOptimizationAlt.mfo());
         }
+        CustomFileWriter.writeToFile(
+                mothFlameOptimizationAlt.getFitnessByIteration(),
+                "sarRastrigin_fitness_iteration_"+ numberOfAgents +".dat"
+        );
         return mothContainer;
     }
 
     public static MothContainer shiftedAndRotatedRosenbrock(double[] shift, double[] rotation, int maxIterations, int numberOfAgents, int dimensions) {
         MothContainer mothContainer = new MothContainer();
-        MothFlameOptimizationAlt mothFlameOptimizationAlt;
+        MothFlameOptimizationAlt mothFlameOptimizationAlt = null;
         for (int i = 0; i < numberOfExecutions; i++) {
             mothFlameOptimizationAlt = new MothFlameOptimizationAlt(
                     numberOfAgents,
@@ -112,15 +125,43 @@ public class Main {
             );
             mothContainer.addMoth(mothFlameOptimizationAlt.mfo());
         }
+        CustomFileWriter.writeToFile(
+                mothFlameOptimizationAlt.getFitnessByIteration(),
+                "sarRosenbrock_fitness_iteration_"+ numberOfAgents +".dat"
+        );
         return mothContainer;
     }
 
-    public static void main(String[] args) {
+    private static Moth evaluateAverage(MothContainer mothContainer) {
 
+        Moth moth = new Moth(10);
+        final double[][] positions = {new double[10]};
+        final double[] fitnessAverage = {0.0};
+
+        mothContainer.getMoths().forEach(m -> {
+            double[] temp = m.getPosition();
+
+            for (int i = 0; i < 10; i++) {
+                positions[0][i] += temp[i];
+            }
+
+            fitnessAverage[0] += m.getFitnessValue();
+        });
+        for (int i = 0; i < 10; i++) {
+            positions[0][i] = positions[0][i] / 30.0;
+        }
+        fitnessAverage[0] = fitnessAverage[0] / 30.0;
+
+        moth.setPosition(positions[0]);
+        moth.setFitnessValue(fitnessAverage[0]);
+
+        return moth;
+    }
+
+    private static void testExecutions() {
         int dimensions = 10;
         int maxIterations = 100000;
 
-        //initialTests();
 
         double[] shiftedBentCigar = new CustomFileReader().readFile(dimensions, "./input_data/shift_data_1.txt");
         double[] shiftedZakharov = new CustomFileReader().readFile(dimensions, "./input_data/shift_data_3.txt");
@@ -137,8 +178,11 @@ public class Main {
         System.out.println("Calculating SaR Bent Cigar");
         for (int i = 0; i < numberOfAgents.length; i++) {
             System.out.println("Number of moths :" + numberOfAgents[i]);
+            MothContainer mothContainer = shiftedAndRotatedBentCigar(shiftedBentCigar, rotatedBentCigar, maxIterations, numberOfAgents[i], dimensions);
+            Moth avgMoth = evaluateAverage(mothContainer);
+            mothContainer.addMoth(avgMoth);
             CustomFileWriter.writeToFile(
-                    shiftedAndRotatedBentCigar(shiftedBentCigar, rotatedBentCigar, maxIterations, numberOfAgents[i], dimensions),
+                    mothContainer,
                     "sarBentCigar_agents" + numberOfAgents[i] + ".dat"
             );
             System.out.println("\n");
@@ -150,8 +194,11 @@ public class Main {
         System.out.println("Calculating SaR Zakharov");
         for (int i = 0; i < numberOfAgents.length; i++) {
             System.out.println("Number of moths :" + numberOfAgents[i]);
+            MothContainer mothContainer = shiftedAndRotatedZakharov(shiftedZakharov, rotatedZakharov, maxIterations, numberOfAgents[i], dimensions);
+            Moth avgMoth = evaluateAverage(mothContainer);
+            mothContainer.addMoth(avgMoth);
             CustomFileWriter.writeToFile(
-                    shiftedAndRotatedZakharov(shiftedZakharov, rotatedZakharov, maxIterations, numberOfAgents[i], dimensions),
+                    mothContainer,
                     "sarZakharov_agents" + numberOfAgents[i] + ".dat"
             );
             System.out.println("\n");
@@ -163,8 +210,11 @@ public class Main {
         System.out.println("Calculating SaR Rosenbrock");
         for (int i = 0; i < numberOfAgents.length; i++) {
             System.out.println("Number of moths :" + numberOfAgents[i]);
+            MothContainer mothContainer = shiftedAndRotatedRosenbrock(shiftedRosenbrock, rotatedRosenbrock, maxIterations, numberOfAgents[i], dimensions);
+            Moth avgMoth = evaluateAverage(mothContainer);
+            mothContainer.addMoth(avgMoth);
             CustomFileWriter.writeToFile(
-                    shiftedAndRotatedRosenbrock(shiftedRosenbrock, rotatedRosenbrock, maxIterations, numberOfAgents[i], dimensions),
+                    mothContainer,
                     "sarRosenbrock_agents" + numberOfAgents[i] + ".dat"
             );
 
@@ -177,14 +227,24 @@ public class Main {
         System.out.println("Calculating SaR Rastrigin");
         for (int i = 0; i < numberOfAgents.length; i++) {
             System.out.println("Number of moths :" + numberOfAgents[i]);
+            MothContainer mothContainer = shiftedAndRotatedRastrigin(shiftedRastrigin, rotatedRastrigin, maxIterations, numberOfAgents[i], dimensions);
+            Moth avgMoth = evaluateAverage(mothContainer);
+            mothContainer.addMoth(avgMoth);
             CustomFileWriter.writeToFile(
-                    shiftedAndRotatedRastrigin(shiftedRastrigin, rotatedRastrigin, maxIterations, numberOfAgents[i], dimensions),
+                    mothContainer,
                     "sarRastrigin_agents" + numberOfAgents[i] + ".dat"
             );
 
             System.out.println("\n");
         }
         System.out.println("Finished calculating SaR Rastrigin");
+    }
+
+    public static void main(String[] args) {
+
+        //initialTests();
+
+        testExecutions();
 
         System.out.println("hello");
     }

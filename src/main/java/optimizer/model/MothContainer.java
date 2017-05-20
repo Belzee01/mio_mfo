@@ -24,4 +24,8 @@ public class MothContainer {
         });
         return sb.toString();
     }
+
+    public List<Moth> getMoths() {
+        return moths;
+    }
 }

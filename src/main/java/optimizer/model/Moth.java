@@ -3,6 +3,7 @@ package optimizer.model;
 import lombok.Data;
 import optimizer.TestFunction;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -34,6 +35,17 @@ public class Moth implements Comparable<Moth>{
         if (this.fitnessValue > fitness)
             return 1;
         return 0;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        Arrays.stream(this.position).forEach(p -> {
+            sb.append(p).append("\t");
+        });
+
+        return sb.toString();
     }
 
     public static Comparator<Moth> MothFitnessComparator = Moth::compareTo;

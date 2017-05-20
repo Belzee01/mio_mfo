@@ -2,6 +2,7 @@ package optimizer;
 
 import lombok.Getter;
 import optimizer.model.Moth;
+import optimizer.model.MothContainer;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +32,8 @@ public class MothFlameOptimizationAlt {
     @Getter
     private Moth minimum;
 
+    private MothContainer fitnessByIteration;
+
     public MothFlameOptimizationAlt(int numberOfMoths, int dimensions, TestFunction testFunction, int maxNumberOfIterations, Bounds bounds) {
         this.moths = new ArrayList<>(numberOfMoths);
         this.numberOfMoths = numberOfMoths;
@@ -44,6 +47,7 @@ public class MothFlameOptimizationAlt {
         this.currentIteration = 0;
         this.maxNumberOfIterations = maxNumberOfIterations;
         this.bounds = bounds;
+        this.fitnessByIteration = new MothContainer();
 
         initialization();
     }
@@ -167,11 +171,16 @@ public class MothFlameOptimizationAlt {
                 }
             }
 
+            this.fitnessByIteration.addMoth(this.sortedPopulation.get(0));
             this.currentIteration++;
         }
 
         this.minimum = this.sortedPopulation.get(0);
 
         return this.sortedPopulation.get(0);
+    }
+
+    public MothContainer getFitnessByIteration() {
+        return fitnessByIteration;
     }
 }
