@@ -1,6 +1,7 @@
 package optimizer;
 
 import lombok.Getter;
+import optimizer.model.FitnessIterationContainer;
 import optimizer.model.Moth;
 import optimizer.model.MothContainer;
 
@@ -32,7 +33,7 @@ public class MothFlameOptimizationAlt {
     @Getter
     private Moth minimum;
 
-    private MothContainer fitnessByIteration;
+    private FitnessIterationContainer fitnessByIteration;
 
     public MothFlameOptimizationAlt(int numberOfMoths, int dimensions, TestFunction testFunction, int maxNumberOfIterations, Bounds bounds) {
         this.moths = new ArrayList<>(numberOfMoths);
@@ -47,7 +48,7 @@ public class MothFlameOptimizationAlt {
         this.currentIteration = 0;
         this.maxNumberOfIterations = maxNumberOfIterations;
         this.bounds = bounds;
-        this.fitnessByIteration = new MothContainer();
+        this.fitnessByIteration = new FitnessIterationContainer();
 
         initialization();
     }
@@ -171,7 +172,7 @@ public class MothFlameOptimizationAlt {
                 }
             }
 
-            this.fitnessByIteration.addMoth(this.sortedPopulation.get(0));
+            this.fitnessByIteration.addNewFitness(this.sortedPopulation.get(0).getFitnessValue());
             this.currentIteration++;
         }
 
@@ -180,7 +181,7 @@ public class MothFlameOptimizationAlt {
         return this.sortedPopulation.get(0);
     }
 
-    public MothContainer getFitnessByIteration() {
+    public FitnessIterationContainer getFitnessByIteration() {
         return fitnessByIteration;
     }
 }

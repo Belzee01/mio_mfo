@@ -1,5 +1,6 @@
 package file;
 
+import optimizer.model.FitnessIterationContainer;
 import optimizer.model.MothContainer;
 import optimizer.model.MyPointsContainer;
 
@@ -10,6 +11,16 @@ import java.io.IOException;
 public class CustomFileWriter {
 
     public static void writeToFile(MyPointsContainer myPoints, String filename) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
+            bw.write(myPoints.toString());
+
+            System.out.println("Done");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void writeToFile(FitnessIterationContainer myPoints, String filename) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
             bw.write(myPoints.toString());
 
